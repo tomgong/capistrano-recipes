@@ -35,12 +35,4 @@ Capistrano::Configuration.instance.load do
     role :app, server
     role :db,  server, :primary => true
   end
-  
-  # TODO: is this even needed?
-  namespace :deploy do
-    task :restart, :roles => :app, :except => { :no_release => true } do
-      stop
-      start
-    end
-  end
 end

@@ -22,6 +22,8 @@ stderr_path "<%= deploy_to %>current/log/unicorn.stderr.log"
 stdout_path "<%= deploy_to %>current/log/unicorn.stdout.log"
 
 before_fork do |server, worker|
+	ActiveRecord::Base.connection.disconnect!
+
   ##
   # When sent a USR2, Unicorn will suffix its pidfile with .oldbin and
   # immediately start loading up a new version of itself (loaded with a new

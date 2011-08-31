@@ -25,17 +25,17 @@ Capistrano::Configuration.instance.load do
     end
 
     task :reload, :roles => :app, :except => { :no_release => true } do
-      run "#if [ -e '#{unicorn_pid}' ]; then #{try_sudo} kill -s USR2 `cat #{unicorn_pid}`; fi"
+      run "#{try_sudo} kill -s USR2 `cat #{unicorn_pid}`"
     end
   end
 
   # NOTE: not needed as restart is a stop+start  
-  #before 'deploy:restart', "configure_unicorn"
+  before 'deploy:restart', "configure_unicorn"
   before 'deploy:start', "configure_unicorn"
   
   after 'deploy:start', 'unicorn:start'
   after 'deploy:stop', 'unicorn:stop'
-  #after 'deploy:restart', 'unicorn:reload'
+  after 'deploy:restart', 'unicorn:reload'
   after 'deploy:reload', 'unicorn:reload'
   after 'deploy:graceful_stop', 'unicorn:graceful_stop'
 end
