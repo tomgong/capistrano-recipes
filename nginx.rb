@@ -31,12 +31,13 @@ Capistrano::Configuration.instance.load do
     
   end
   
-  before 'deploy:restart', "configure_nginx"
+  # NOTE: not needed as restart is a stop+start
+  #before 'deploy:restart', "configure_nginx"
   before 'deploy:start', "configure_nginx"
   
   after 'deploy:start', 'nginx:start'
   after 'deploy:stop', 'nginx:stop'
   after 'deploy:reload', 'nginx:reload'
   after 'deploy:graceful_stop', 'nginx:reload'
-  after 'deploy:restart', 'nginx:reload'
+  #after 'deploy:restart', 'nginx:reload'
 end
