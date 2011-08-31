@@ -1,0 +1,33 @@
+# this should match the socket as configured in our unicorn.conf
+upstream unicorn_<%= application %> {
+   server unix:/media/raid/managed-apps/<%= application %>/current/tmp/sockets/unicorn.sock;
+}
+
+server {
+    listen       80;
+    server_name  <%= domain_application %> <%= domain_aliases %>;
+
+    keepalive_timeout 5;
+
+    root /media/raid/managed-apps/<%= application %>/current/public;
+
+    location / {
+       # This is important for mpay24
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header Host $http_host;
+       proxy_redirect off;
+
+       # if you don't find the filename in the static files request it from unicorn
+       # TODO: can we use try_file for this?
+       if (!-f $request_filename) {
+           proxy_pass http://unicorn_<%= application %>;
+           break;
+       }
+    }
+
+    error_page  500 502 503 504 /500.html;
+
+    location = /500.html {
+        root   /media/raid/managed-apps/<%= application %>/current/public;
+    }
+}

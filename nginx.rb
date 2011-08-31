@@ -4,7 +4,7 @@ Capistrano::Configuration.instance.load do
   # generate a nginx configuration file
   task :configure_nginx do
     # run the template  
-    generate_from_template("/etc/templates/nginx.conf.tmpl", "/etc/nginx/sites-available.d/#{domain_application}")
+    generate_from_template("nginx.conf.tmpl", "/etc/nginx/sites-available.d/#{domain_application}")
 
     #add a symlink into sites enabled 
     sudo "ln -s -f /etc/nginx/sites-available.d/#{domain_application} /etc/nginx/sites-enabled.d/#{domain_application}"

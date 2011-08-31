@@ -8,8 +8,7 @@ Capistrano::Configuration.instance.load do
     
   # configure the app server (unicorn)
   task :configure_unicorn do
-    generate_from_template("/etc/templates/unicorn.rb.tmpl", unicorn_config)
-  #  sudo "mv #{unicorn_remote_config} #{where_to_move_the_unicorn config}"
+    generate_from_template("unicorn.rb.tmpl", unicorn_config)
   end
   
   namespace :unicorn do
