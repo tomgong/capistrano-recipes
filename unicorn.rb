@@ -17,11 +17,11 @@ Capistrano::Configuration.instance.load do
     end
 
     task :stop, :roles => :app, :except => { :no_release => true } do 
-      run "if [ -e '#{unicorn_pid}' ]; then #{try_sudo} kill `cat #{unicorn_pid}`; sleep 5; fi;"
+      run "if [ -e '#{unicorn_pid}' ]; then #{try_sudo} kill `cat #{unicorn_pid}`; fi;"
     end
 
     task :graceful_stop, :roles => :app, :except => { :no_release => true } do
-      run "if [ -e '#{unicorn_pid}' ]; then #{try_sudo} kill -s QUIT `cat #{unicorn_pid}`; sleep 5; fi"
+      run "if [ -e '#{unicorn_pid}' ]; then #{try_sudo} kill -s QUIT `cat #{unicorn_pid}`; fi"
     end
 
     task :reload, :roles => :app, :except => { :no_release => true } do
