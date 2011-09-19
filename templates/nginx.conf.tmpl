@@ -32,14 +32,14 @@ server {
     }
 }
 
-<% if defined?(enable_ssl) && enable_ssl == true %>
+<% if enable_ssl == true %>
 server {
 	listen          443;
 	server_name     <%= domain_application %> <%= domain_aliases %>;
 
 	ssl on;
-	ssl_certificate         /media/raid/managed-apps/<%= application%>/current/private/<%application%>.combined.crt;
-	ssl_certificate_key     /media/raid/managed-apps/<%= application%>/current/private/<%application%>.key;
+	ssl_certificate         /media/raid/managed-apps/<%= application%>/current/private/<%=application%>.combined.crt;
+	ssl_certificate_key     /media/raid/managed-apps/<%= application%>/current/private/<%=application%>.key;
 
   keepalive_timeout 5;
 
