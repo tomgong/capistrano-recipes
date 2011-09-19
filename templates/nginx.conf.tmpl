@@ -31,3 +31,38 @@ server {
         root   /media/raid/managed-apps/<%= application %>/current/public;
     }
 }
+
+<% if defined?(enable_ssl) && enable_ssl == true %>
+server {
+	listen          443;
+	server_name     <%= domain_application %> <%= domain_aliases %>;
+
+	ssl on;
+	ssl_certificate         /media/raid/managed-apps/<%= application%>/current/private/<%application%>.combined.crt;
+	ssl_certificate_key     /media/raid/managed-apps/<%= application%>/current/private/<%application%>.key;
+
+  keepalive_timeout 5;
+
+  root /media/raid/managed-apps/<%= application %>/current/public;
+
+  location / {
+     # This is important for mpay24
+     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+     proxy_set_header Host $http_host;
+     proxy_redirect off;
+
+     # if you don't find the filename in the static files request it from unicorn
+     # TODO: can we use try_file for this?
+     if (!-f $request_filename) {
+         proxy_pass http://unicorn_<%= application %>;
+         break;
+     }
+  }
+
+  error_page  500 502 503 504 /500.html;
+
+  location = /500.html {
+      root   /media/raid/managed-apps/<%= application %>/current/public;
+  }
+}
+<% end %>
