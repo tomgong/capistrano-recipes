@@ -13,5 +13,12 @@ Capistrano::Configuration.instance.load do
      end
    end
    
+   namespace :debian do
+     desc "Install some needed packages"
+     task :install_needed_packages do
+       run "rvmsudo apt-get install vim-nox git curl build-essential zlib1g-dev libxml2-dev libxslt1-dev libpq-dev libsqlite3-dev"
+     end
+   end
+   
    before "deploy:update_code", "static_files:create_base_directories"
 end
