@@ -10,7 +10,12 @@ end
 Capistrano::Configuration.instance.load do
   default_run_options[:pty] = true
   ssh_options[:forward_agent] = true
-  set :rvm_bin_path, "/usr/local/bin"
+  set :rvm_bin_path, "/usr/local/rvm/bin"
+
+  set :stages, %w(production staging)
+  set :default_stage, 'staging'
+
+  require 'capistrano/ext/multistage'
   
   set :user, 'root'
   set :group, 'www-data'
@@ -28,11 +33,4 @@ Capistrano::Configuration.instance.load do
   set :unicorn_socket, "#{current_path}/tmp/sockets/unicorn.sock"
 
   set :runner, 'www-data'
-  servers = ["alpha.starseeders.net"]
-
-  servers.each do |server|
-    role :web, server
-    role :app, server
-    role :db,  server, :primary => true
-  end
 end
