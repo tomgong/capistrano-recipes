@@ -25,7 +25,7 @@ Capistrano::Configuration.instance.load do
     end
 
     task :reload, :roles => :app, :except => { :no_release => true } do
-      run "#{try_sudo} kill -s USR2 `cat #{unicorn_pid}`"
+      run "if [ -e '#{unicorn_pid}' ]; then #{try_sudo} kill -s USR2 `cat #{unicorn_pid}`; else cd #{current_path} && rvmsudo unicorn -c #{unicorn_config} -E #{rails_env} -D; fi"
     end
   end
 
