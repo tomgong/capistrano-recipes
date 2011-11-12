@@ -11,5 +11,5 @@ Capistrano::Configuration.instance.load do
     end
   end
 
-  after "deploy:finalize_update", "gems:install"
+  after "deploy:update_code", "gems:install"
 end
