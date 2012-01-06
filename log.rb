@@ -27,5 +27,6 @@ missingok
     end
   end
 
-  on :before, "log:rotate", :only => 'deploy:start'
+  before 'deploy:start', 'log:rotate'
+  before 'deploy:restart', 'log:rotate'
 end
