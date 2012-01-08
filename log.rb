@@ -19,6 +19,7 @@ rotate #{ENV['days'] || 7}
 size #{ENV['size'] || "5M"}
 compress
 create 640 #{user} #{ENV['group'] || user}
+dateext
 missingok
 }}
       put rotate_script, "#{shared_path}/logrotate_script"
