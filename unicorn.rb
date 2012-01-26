@@ -13,7 +13,7 @@ Capistrano::Configuration.instance.load do
   
   namespace :unicorn do
     task :start, :roles => :app, :except => { :no_release => true } do
-      run "cd #{current_path} && rvmsudo unicorn -c #{unicorn_config} -E #{rails_env} -D"
+      run "cd #{current_path} && rvmsudo unicorn -c #{unicorn_config} -E #{stage} -D"
     end
 
     task :stop, :roles => :app, :except => { :no_release => true } do 
@@ -25,7 +25,7 @@ Capistrano::Configuration.instance.load do
     end
 
     task :reload, :roles => :app, :except => { :no_release => true } do
-      run "if [ -e '#{unicorn_pid}' ]; then #{try_sudo} kill -s USR2 `cat #{unicorn_pid}`; else cd #{current_path} && rvmsudo unicorn -c #{unicorn_config} -E #{rails_env} -D; fi"
+      run "if [ -e '#{unicorn_pid}' ]; then #{try_sudo} kill -s USR2 `cat #{unicorn_pid}`; else cd #{current_path} && rvmsudo unicorn -c #{unicorn_config} -E #{stage} -D; fi"
     end
   end
 

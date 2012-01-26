@@ -27,7 +27,6 @@ Capistrano::Configuration.instance.load do
   
   set :using_rvm, true
   
-  set :rails_env, :staging
   set :unicorn_config, "#{current_path}/config/unicorn.rb"
   set :unicorn_pid, "#{current_path}/tmp/pids/unicorn.pid"
   set :unicorn_socket, "#{current_path}/tmp/sockets/unicorn.sock"

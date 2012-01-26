@@ -13,7 +13,7 @@ Install log rotation script; optional args: days=7, size=5M, group (defaults to 
     DESC
 
     task :rotate do
-      rotate_script = %Q{#{shared_path}/log/#{rails_env}.log {
+      rotate_script = %Q{#{shared_path}/log/#{stage}.log {
 daily
 rotate #{ENV['days'] || 7}
 size #{ENV['size'] || "5M"}
