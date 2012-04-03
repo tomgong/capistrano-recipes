@@ -10,7 +10,7 @@ namespace :nginx do
     # first move it into a temporary directory so we can move the file
     # through sudo. This allows us to deploy as non-root user
     generate_from_template("nginx.conf.tmpl", "/tmp/#{application}")
-    run "#{sudo} mv /tmp/#{application} /etc/nginx/sites-enabled/#{application}"
+    run "#{sudo} mv /tmp/#{application} /etc/nginx/sites-enabled.d/#{application}"
     restart
   end
   after "deploy:setup", "nginx:setup"
@@ -18,7 +18,7 @@ namespace :nginx do
   %w[start stop restart].each do |command|
     desc "#{command} nginx server"
     task command do
-      run "#{sudo} service nginx #{command}"
+      run "#{sudo} /etc/init.d/nginx #{command}"
     end
   end
 end

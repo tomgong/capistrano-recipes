@@ -24,5 +24,5 @@ namespace :postgres do
       exit
     end
   end
-  after "deploy:setup", "postgres:setup"
+  after "deploy:setup", "postgres:create_database"
 end
