@@ -1,41 +1,38 @@
 # this should match the socket as configured in our unicorn.conf
 upstream unicorn_<%= application %> {
-   server unix:/media/raid/managed-apps/<%= application %>/current/tmp/sockets/unicorn.sock;
+   server unix:<%= current_path %>/tmp/sockets/unicorn.sock;
 }
 
 server {
-    listen       80;
+    listen       80 default deferred;
     server_name  <%= domain_application %> <%= domain_aliases %>;
 
     keepalive_timeout 5;
 
-    root /media/raid/managed-apps/<%= application %>/current/public;
+    root <%= current_path %>/public;
 
-    location / {
+    try_files $uri/index.html $uri @unicorn
+    location @unicorn {
        # This is important for mpay24
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
        proxy_set_header Host $http_host;
        proxy_redirect off;
-
-       # if you don't find the filename in the static files request it from unicorn
-       # TODO: can we use try_file for this?
-       if (!-f $request_filename) {
-           proxy_pass http://unicorn_<%= application %>;
-           break;
-       }
+       proxy_pass http://unicorn_<%= application %>;
     }
 
 		location ~ ^/(assets)/  {
-		  root /media/raid/managed-apps/<%= application %>/current/public;
+		  root <%= current_path %>/public;
 		  gzip_static on; # to serve pre-gzipped version
 		  expires max;
 		  add_header Cache-Control public;
 		}
 
     error_page  500 502 503 504 /500.html;
+    client_max_body_size 4G;
+    keepalive_timeout 10;
 
     location = /500.html {
-        root   /media/raid/managed-apps/<%= application %>/current/public;
+        root <%=current_path%>/public;
     }
 }
 
@@ -45,12 +42,21 @@ server {
 	server_name     <%= domain_application %> <%= domain_aliases %>;
 
 	ssl on;
-	ssl_certificate         /media/raid/managed-apps/<%= application%>/current/private/<%=application%>.combined.crt;
-	ssl_certificate_key     /media/raid/managed-apps/<%= application%>/current/private/<%=application%>.key;
+	ssl_certificate         <%= current_path %>/private/<%=application%>.combined.crt;
+	ssl_certificate_key     <%= current_path %>/private/<%=application%>.key;
 
   keepalive_timeout 5;
 
-  root /media/raid/managed-apps/<%= application %>/current/public;
+  root <%= current_path %>/public;
+
+  try_files $uri/index.html $uri @unicorn
+  location @unicorn {
+     # This is important for mpay24
+     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+     proxy_set_header Host $http_host;
+     proxy_redirect off;
+     proxy_pass http://unicorn_<%= application %>;
+  }
 
   location / {
      # This is important for mpay24
@@ -59,18 +65,14 @@ server {
      proxy_set_header Host $http_host;
      proxy_redirect off;
 
-     # if you don't find the filename in the static files request it from unicorn
-     # TODO: can we use try_file for this?
-     if (!-f $request_filename) {
-         proxy_pass http://unicorn_<%= application %>;
-         break;
-     }
   }
 
   error_page  500 502 503 504 /500.html;
+  client_max_body_size 4G;
+  keepalive_timeout 10;
 
   location = /500.html {
-      root   /media/raid/managed-apps/<%= application %>/current/public;
+      root <%= current_path %>/public;
   }
 }
 <% end %>

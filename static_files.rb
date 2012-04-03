@@ -1,25 +1,16 @@
-Capistrano::Configuration.instance.load do
-  after "deploy:update_code" do
+namespace :static_directories do
+  task :create_shared_directories do
     %w(tmp/pids tmp/sockets public/assets public/system log public/uploads).each do |share|
       run "if [ -L #{release_path}/#{share} ]; then rm -f #{release_path}}/#{share} ; fi"
       run "if [ ! -d #{shared_path}/#{share} ]; then mkdir -p #{shared_path}/#{share} ; fi"
       run "ln -s -f #{shared_path}/#{share} #{release_path}/#{share}"
     end
   end
-  
-  namespace :static_files do
-     desc "Create some directories"
-     task :create_base_directories do
-       run "rvmsudo mkdir -p /media/raid/managed-apps/#{application}/releases"
-     end
-   end
-   
-   namespace :debian do
-     desc "Install some needed packages"
-     task :install_needed_packages do
-       run "rvmsudo apt-get install vim-nox git curl build-essential zlib1g-dev libxml2-dev libxslt1-dev libpq-dev libsqlite3-dev"
-     end
-   end
-   
-   before "deploy:update_code", "static_files:create_base_directories"
+  after "deploy:update_code", "static_directories:create_shared_directories"
+
+  desc "Create some directories"
+  task :create_base_directories do
+    run "#{sudo} mkdir -p #{deploy_to}/releases"
+  end
+  before "deploy:update_code", "static_directories:create_base_directories"
 end
