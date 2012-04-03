@@ -35,14 +35,10 @@ set :default_stage, 'staging'
 
 require 'capistrano/ext/multistage'
   
-set :user, 'deployer'
-set :group, 'www-data'
- 
 set :scm, :git
 set :scm_verbose, false
 set :git_enable_submodules, 1
 set :deploy_via, :remote_cache
-set :runner, 'www-data'
 set :enable_ssl, false
 set :use_sudo, false
 set :branch, "master"
