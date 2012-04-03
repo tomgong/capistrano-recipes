@@ -1,6 +1,6 @@
 worker_processes <%= unicorn_workers %>
 working_directory "<%= current_path %>"
-user 'www-data'
+# user 'www-data'
 preload_app true
 timeout 30
 listen "<%= current_path %>/tmp/sockets/unicorn.sock"
