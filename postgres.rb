@@ -30,7 +30,7 @@ namespace :postgres do
   after "deploy:setup", "postgres:create_database"
 
   desc "Dumps target database db into an file"
-  task :database do
+  task :backup_database do
     # read database config
     config = YAML.load_file("config/database.yml")
     adapter = config[stage.to_s]["adapter"]
@@ -40,11 +40,11 @@ namespace :postgres do
     database = config[stage.to_s]["database"]
     
     if adapter == "postgresql" && hostname == "localhost"
-      run %Q{#{sudo} -u postgres pg_dump #{database} -f #{shared_path}/db_backups/dump-#{Time.now.strftime("%Y%m%d-%H%M")}.sql;"}
+      run %Q{#{sudo} -u postgres pg_dump #{database} -f #{shared_path}/db_backups/dump-#{Time.now.strftime("%Y%m%d-%H%M")}.sql}
     else
       puts "cannot dump the database as it isn't localhost or driver ain't postgresql"
       exit
     end
   end
-  before 'deploy:migrate', 'backup:database'
+  before 'deploy:migrate', 'postgres:backup_database'
 end
