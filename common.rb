@@ -17,7 +17,7 @@ namespace :deploy do
 
   desc "Make sure local git is in sync with remote"
   task :check_revision, roles: :app do
-    unless `git rev-parse HEAD` == `git rev-parse origin/master`
+    unless `git rev-parse HEAD` == `git rev-parse origin/compass`
       puts "warning: HEAD is not the same as origin/master"
       puts "Run `git push` to sync changes."
       exit
@@ -42,3 +42,6 @@ set :deploy_via, :remote_cache
 set :enable_ssl, false
 set :use_sudo, false
 set :branch, "master"
+
+
+set :rvm_path, "/home/deployer/.rvm/"

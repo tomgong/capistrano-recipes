@@ -4,7 +4,7 @@ upstream unicorn_<%= application %> {
 }
 
 server {
-    listen       80 default deferred;
+    listen       80;
     server_name  <%= domain_application %> <%= domain_aliases %>;
 
     keepalive_timeout 5;
