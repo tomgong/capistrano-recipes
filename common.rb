@@ -14,16 +14,6 @@ namespace :deploy do
   task :install do
     run "#{sudo} apt-get -y update"
   end
-
-  desc "Make sure local git is in sync with remote"
-  task :check_revision, roles: :app do
-    unless `git rev-parse HEAD` == `git rev-parse origin/compass`
-      puts "warning: HEAD is not the same as origin/master"
-      puts "Run `git push` to sync changes."
-      exit
-    end
-  end
-  before "deploy", "deploy:check_revision"
 end
 after "deploy", "deploy:cleanup" # keep only the last 5 releases
 
