@@ -20,6 +20,7 @@ compress
 create 666 #{user} #{ENV['group'] || user}
 dateext
 missingok
+copytruncate
 }}
     put rotate_script, "#{shared_path}/logrotate_script"
     run "#{sudo} cp #{shared_path}/logrotate_script /etc/logrotate.d/rails_#{application}"
