@@ -1,0 +1,51 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          unicorn
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Manage puma server
+# Description:       Start, stop, restart puma server for a specific application.
+### END INIT INFO
+set -e
+
+# Feel free to change any of the following variables for your app:
+TIMEOUT=${TIMEOUT-60}
+APP_ROOT=<%= current_path %>
+AS_USER=deployer
+PUMA_STATE=<%= current_path %>/tmp/sockets/pumactl.sock
+PUMA_SOCK=$APP_ROOT/tmp/sockets/unicorn.sock
+PUMA_LOG=$APP_ROOT/log/puma-production.log
+set -u
+
+run () {
+  if [ "$(id -un)" = "$AS_USER" ]; then
+    eval $1
+  else
+    su -c "$1" - $AS_USER
+  fi
+}
+
+case "$1" in
+start)
+  run "cd $APP_ROOT && RAILS_ENV=production rvm bundle exec nohup puma -b 'unix://$PUMA_SOCK -S $PUMA_STATE --control auto >> $PUMA_LOG 2>&1 &"
+  ;;
+stop)
+  sig QUIT && exit 0
+  echo >&2 "Not running"
+  ;;
+force-stop)
+  run "cd $APP_ROOT && rvm bundle exec pumactl -S $PUMA_STATE stop"
+  ;;
+restart|reload)
+  run "cd $APP_ROOT && rvm bundle exec pumactl -S $PUMA_STATE restart"
+  ;;
+reopen-logs)
+  sig USR1
+  ;;
+*)
+  echo >&2 "Usage: $0 <start|stop|restart|force-stop|reopen-logs>"
+  exit 1
+  ;;
+esac
