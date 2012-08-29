@@ -33,5 +33,8 @@ set :enable_ssl, false
 set :use_sudo, false
 set :branch, "master"
 
-
-set :rvm_path, "/home/deployer/.rvm/"
+# as bash is run in non-interactive mode, set the rbenv path by
+# hand
+set :default_environment, {
+  'PATH' => "$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
+}
