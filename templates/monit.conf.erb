@@ -1,0 +1,5 @@
+check process <%= application %> with pidfile <%= current_path %>/tmp/pids/unicorn.pid
+	start program = "/etc/init.d/unicorn_<%= application %> start"
+	stop program = "/etc/init.d/unicorn_<%= application %> stop"
+	if children > 100 then restart
+	if 5 restarts within 5 cycles then timeout
