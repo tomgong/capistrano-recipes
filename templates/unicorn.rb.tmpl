@@ -1,7 +1,7 @@
 worker_processes <%= unicorn_workers %>
 working_directory "<%= current_path %>"
 # TODO: why?
-user 'deployer', 'rvm'
+user 'deployer_rbenv', 'deployer_rbenv'
 preload_app true
 timeout 30
 listen "<%= current_path %>/tmp/sockets/unicorn.sock"
@@ -39,8 +39,10 @@ before_fork do |server, worker|
 end
 
 after_fork do |server, worker|
-# Here we are establishing the connection after forking worker
-# processes
-  defined?(ActiveRecord::Base) and
+  if defined?(ActiveRecord::Base)
     ActiveRecord::Base.establish_connection
+  end
+  
+  child_pid = server.config[:pid].sub(".pid", ".#{worker.nr}.pid")
+  system("echo #{Process.pid} > #{child_pid}")
 end
