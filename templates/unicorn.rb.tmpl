@@ -13,7 +13,9 @@ stdout_path "<%= unicorn_log %>.stdout"
 
 # TODO (2012/4/2): verify: do I still need this?
 before_fork do |server, worker|
-	ActiveRecord::Base.connection.disconnect!
+  if defined? ActiveRecord::Base
+    ActiveRecord::Base.connection.disconnect!
+  end
 
   ##
   # When sent a USR2, Unicorn will suffix its pidfile with .oldbin and
