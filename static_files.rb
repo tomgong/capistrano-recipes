@@ -10,7 +10,7 @@ namespace :static_directories do
 
   desc "Create some directories"
   task :create_base_directories do
-    run "#{sudo} mkdir -p #{deploy_to}/releases"
+    run "mkdir -p #{deploy_to}/releases"
   end
   before "deploy:update_code", "static_directories:create_base_directories"
 end
