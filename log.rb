@@ -7,11 +7,8 @@ namespace :log do
     end
   end
 
-  desc <<-DESC
-Install log rotation script; optional args: days=7, size=5M, group (defaults to same value as :user)
-  DESC
-
-  task :rotate do
+  desc "Install log rotation script; optional args: days=7, size=5M, group (defaults to same value as :user)"
+  task :setup do
     rotate_script = %Q{#{shared_path}/log/#{stage}.log {
 daily
 rotate #{ENV['days'] || 7}
@@ -28,5 +25,4 @@ copytruncate
   end
 end
 
-before 'deploy:start', 'log:rotate'
-before 'deploy:restart', 'log:rotate'
+after 'deploy:setup', 'log:setup'
