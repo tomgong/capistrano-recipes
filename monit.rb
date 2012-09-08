@@ -19,6 +19,5 @@ namespace :monit do
     task command do
       run "#{sudo} /etc/init.d/monit #{command}"
     end
-    after "deploy:#{command}", "monit:#{command}"
   end
 end
