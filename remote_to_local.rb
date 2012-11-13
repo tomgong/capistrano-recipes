@@ -1,6 +1,6 @@
 task :db_remote_to_local do
   require 'yaml_db'
-  run "cd #{current_release} && rvmsudo RAILS_ENV=\"production\" rake db:dump"
+  run "cd #{current_release} && RAILS_ENV=\"production\" bundle exec rake db:dump"
   get("#{current_release}/db/data.yml", "./db/data.yml")
   get("#{current_release}/db/schema.rb", "./db/schema.rb")
   
@@ -9,7 +9,7 @@ end
 
 task :public_remote_to_local do
   archive = "/tmp/public-#{domain_application}.tar.gz"
-  run "cd #{current_release} && rvmsudo tar chzf #{archive} public/"
+  run "cd #{current_release} && tar chzf #{archive} public/"
   get archive, "./public.tar.gz"
 end
 
