@@ -11,7 +11,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       # first move it into a temporary directory so we can move the file
       # through sudo. This allows us to deploy as non-root user
       generate_from_template("nginx.conf.tmpl", "/tmp/#{application}")
-      run "#{sudo} mv /tmp/#{application} /etc/nginx/sites-enabled.d/#{application}"
+      run "#{sudo} mv /tmp/#{application} /etc/nginx/sites-enabled/#{application}"
       restart
     end
     after "deploy:setup", "nginx:setup"
