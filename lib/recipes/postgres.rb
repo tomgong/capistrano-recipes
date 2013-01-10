@@ -50,17 +50,17 @@ Capistrano::Configuration.instance(:must_exist).load do
     before 'deploy:migrate', 'postgres:backup_database'
   end
   
-  desc "Copy the remote production database as pg_dump sql file to the local development environment backup dir"
-    task :pg_production_to_local, :roles => :db, :only => { :primary => true } do
+  desc "Copy the remote database as pg_dump sql file to the local development environment backup dir"
+    task :pg_remote_to_local, :roles => :db, :only => { :primary => true } do
       # First lets get the remote database config file so that we can read in the database settings
       tmp_db_yml = "tmp/database.yml"
       get("#{current_path}/config/database.yml", tmp_db_yml)
 
       # load the production settings within the database file
-      db = YAML::load_file("tmp/database.yml")["production"]
+      db = YAML::load_file("tmp/database.yml")["#{stage}"]
       run_locally("rm #{tmp_db_yml}")
 
-      filename = "#{application}_production.dump.#{Time.now.to_i}.sql.bz2"
+      filename = "#{application}_#{stage}.dump.#{Time.now.to_i}.sql.bz2"
       file = "/tmp/#{filename}"
       on_rollback {
         run "rm #{file}"
@@ -75,8 +75,8 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "rm #{file}"
   end
   
-  desc "Copy the latest backup to the local development database NOTE: postgreSQL specific"
-    task :pg_import_backup do
+  desc "Copy the latest backup to the local development database"
+    task :pg_import_backup_local do
       filename = `ls -tr backups | tail -n 1`.chomp
       if filename.empty?
         logger.important "No backups found"
@@ -87,6 +87,30 @@ Capistrano::Configuration.instance(:must_exist).load do
         run_locally "bzip2 -cd backups/#{filename} | psql -U #{ddb['username']} -d #{ddb['database']}"
         logger.debug "command finished"
       end
-    end
+  end
+  
+  desc "Copy the latest locally stored backup to the designated environment"
+    task :pg_import_local_backup_to_remote do
+      filename = `ls -tr backups | tail -n 1`.chomp
+      if filename.empty?
+        logger.important "No backups found"
+      else
+        if stage == 'production' then
+          logger.important "local to production not allowed"
+        else
+          puts "copy pg backup file"
+          upload("backups/#{filename}", "/tmp/#{filename}")
+          puts "trying to restore backup #{filename} in env #{stage}"
+          ddb = YAML::load_file("config/database.yml")["#{stage}"]
+          ENV['PGPASSWORD'] = ddb['password']
+          run "bzip2 -cd /tmp/#{filename} | psql -U #{ddb['username']} -d #{ddb['database']}" do |ch, stream, out|
+            ch.send_data "#{ddb['password']}\n" if out =~ /^Password:/
+            puts out
+          end
+          run "rm /tmp/#{filename}"
+        end
+        logger.debug "command finished"
+      end
+  end
   
 end
