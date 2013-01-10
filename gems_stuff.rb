@@ -1,4 +1,4 @@
-Capistrano::Configuration.instance.load do
+Capistrano::Configuration.instance(:must_exist).load do
   namespace :gems do
     desc "Install gems"
     task :install, :roles => :app do
@@ -11,5 +11,6 @@ Capistrano::Configuration.instance.load do
     end
   end
 
-  after "deploy:finalize_update", "gems:install"
+  # TODO remove
+  #after "deploy:finalize_update", "gems:install"
 end
