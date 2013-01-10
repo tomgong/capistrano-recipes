@@ -49,4 +49,44 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
     before 'deploy:migrate', 'postgres:backup_database'
   end
+  
+  desc "Copy the remote production database as pg_dump sql file to the local development environment backup dir"
+    task :pg_production_to_local, :roles => :db, :only => { :primary => true } do
+      # First lets get the remote database config file so that we can read in the database settings
+      tmp_db_yml = "tmp/database.yml"
+      get("#{current_path}/config/database.yml", tmp_db_yml)
+
+      # load the production settings within the database file
+      db = YAML::load_file("tmp/database.yml")["production"]
+      run_locally("rm #{tmp_db_yml}")
+
+      filename = "#{application}_production.dump.#{Time.now.to_i}.sql.bz2"
+      file = "/tmp/#{filename}"
+      on_rollback {
+        run "rm #{file}"
+        run_locally("rm #{tmp_db_yml}")
+      }
+      run "pg_dump --clean --no-owner --no-privileges -U#{db['username']} -h localhost #{db['database']} | bzip2 > #{file}" do |ch, stream, out|
+        ch.send_data "#{db['password']}\n" if out =~ /^Password:/
+        puts out
+      end
+      run_locally "mkdir -p -v 'backups/'"
+      get file, "backups/#{filename}"
+      run "rm #{file}"
+  end
+  
+  desc "Copy the latest backup to the local development database NOTE: postgreSQL specific"
+    task :pg_import_backup do
+      filename = `ls -tr backups | tail -n 1`.chomp
+      if filename.empty?
+        logger.important "No backups found"
+      else
+        ddb = YAML::load_file("config/database.yml")["development"]
+        logger.debug "Loading backups/#{filename} into local development database"
+        ENV['PGPASSWORD'] = ddb['password']
+        run_locally "bzip2 -cd backups/#{filename} | psql -U #{ddb['username']} -d #{ddb['database']}"
+        logger.debug "command finished"
+      end
+    end
+  
 end
