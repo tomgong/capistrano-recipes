@@ -15,9 +15,20 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   task :public_local_to_remote do
-    archive = "/tmp/public-#{domain_application}.tar.gz"
-    run "cd #{current_release} && tar chzf #{archive} public/"
-    get archive, "./public.tar.gz"
+    filename = `ls -tr public.tar.gz | tail -n 1`.chomp
+    if filename.empty?
+      logger.important "No public.tar.gz found"
+    else
+      if stage == 'production' then
+        logger.important "local to production not allowed"
+      else                        
+        archive = "/tmp/public-#{domain_application}.tar.gz"
+        upload("#{filename}", archive)
+        run "tar xzvf #{archive} -C #{current_path}"
+      end
+    end
+    
+    logger.debug "command finished"
   end
 
   before 'remote_to_local', :db_remote_to_local
