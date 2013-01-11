@@ -1,7 +1,7 @@
 worker_processes <%= unicorn_workers %>
 working_directory "<%= current_path %>"
 # TODO: why?
-user 'deployer_rbenv', 'deployer_rbenv'
+user '<%= user %>', '<%= user %>'
 preload_app true
 timeout 30
 listen "<%= current_path %>/tmp/sockets/unicorn.sock"
