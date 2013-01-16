@@ -53,11 +53,11 @@ Capistrano::Configuration.instance(:must_exist).load do
   desc "Copy the remote database as pg_dump sql file to the local development environment backup dir"
     task :pg_remote_to_local, :roles => :db, :only => { :primary => true } do
       # First lets get the remote database config file so that we can read in the database settings
-      tmp_db_yml = "tmp/database.yml"
+      tmp_db_yml = "/tmp/database.yml"
       get("#{current_path}/config/database.yml", tmp_db_yml)
 
       # load the production settings within the database file
-      db = YAML::load_file("tmp/database.yml")["#{stage}"]
+      db = YAML::load_file("/tmp/database.yml")["#{stage}"]
       run_locally("rm #{tmp_db_yml}")
 
       filename = "#{application}_#{stage}.dump.#{Time.now.to_i}.sql.bz2"
