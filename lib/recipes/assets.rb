@@ -7,11 +7,11 @@ Capistrano::Configuration.instance(:must_exist).load do
     namespace :assets do
       task :precompile, :roles => :web, :except => { :no_release => true } do
         logger.info "Checking asset dirs for precompilation: #{asset_locations.join(" ")} #{additional_asset_locations.join(" ")}"
-        first_deplopyment = false
+        first_deployment = false
         begin
           from = source.next_revision(current_revision)
         rescue
-          first_deplopyment = true
+          first_deployment = true
         end
         
         if !first_deployment || capture("cd #{latest_release} && #{source.local.log(from)} #{asset_locations.join(" ")} #{additional_asset_locations.join(" ")} | wc -l").to_i > 0
