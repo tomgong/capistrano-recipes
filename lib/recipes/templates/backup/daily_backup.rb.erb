@@ -22,7 +22,6 @@ Backup::Model.new('<%= application %>_daily', 'daily starseeders backup for <%= 
     db.password           = database["password"]
     db.host               = database["host"]
     db.port               = 5432
-    db.additional_options = ["-E=utf8", "-F c"]
   end
 
   archive :filedata do |archive|
