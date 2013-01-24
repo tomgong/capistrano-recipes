@@ -1,0 +1,52 @@
+# encoding: utf-8
+##
+# Once configured, you can run the backup with the following command:
+#
+# $ backup perform -t <application>_daily [-c <path_to_configuration_file>]
+#
+
+# Default file paths
+root = '<%= current_path %>'
+auth = YAML.load_file("#{root}/config/backup.yml")
+db_attrs = YAML.load_file("#{root}/config/database.yml")
+backup = auth["backup_server"]
+database = db_attrs[(ENV['RAILS_ENV'] || "production")]
+
+Backup::Model.new('<%= application %>_daily', 'daily starseeders backup for <%= application %>') do
+
+  split_into_chunks_of 4000
+
+  database PostgreSQL do |db|
+    db.name               = database["database"]
+    db.username           = database["username"]
+    db.password           = database["password"]
+    db.host               = database["host"]
+    db.port               = 5432
+    db.additional_options = ["-E=utf8", "-F c"]
+  end
+
+  archive :filedata do |archive|
+    archive.add     '<%= shared_path %>/log/'
+    archive.add     '<%= shared_path %>/public/'
+  end
+
+  # decrypt with openssl aes-256-cbc -d -base64 -salt -in <tarname>.tar.enc -out <tarname>.tar.dec
+  encrypt_with OpenSSL do |encryption|
+    encryption.password = auth["crypt"]["password"]
+    encryption.base64   = true
+    encryption.salt     = true
+  end
+
+  compress_with Gzip do |compression|
+    compression.level = 6
+  end
+
+  store_with SFTP do |sftp|
+    sftp.ip       = backup["host"]
+    sftp.username = backup["user"]
+    sftp.password = backup["pass"]
+    sftp.port     = 22
+    sftp.keep     = 12
+  end
+
+end
