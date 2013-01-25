@@ -1,7 +1,9 @@
 crypt:
   password: <%= backup_encryption_password %>
+ <% if sftpbackup then %>
 backup_server:
   host: <%= backup_backup_server_host %>
   user: <%= backup_backup_server_user %>
   pass: <%= backup_backup_server_pass %>
+ <% end %>
 

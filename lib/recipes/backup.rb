@@ -9,18 +9,38 @@ Capistrano::Configuration.instance(:must_exist).load do
 	namespace :backup do
 	  desc "Install the backup gem."
 	  task :install do
-	  	run "gem install backup"
-	  	run "gem install whenever"
-	  	run "gem install net-ssh -v '~> 2.3.0'"
-      	run "rbenv rehash"
-	    run "mkdir -p #{shared_path}/config/backup/models"
-	    generate_from_template "backup/daily_backup.rb.erb", "#{shared_path}/config/backup/models/daily_backup.rb"
-	    generate_from_template "backup/config.rb.erb", "#{shared_path}/config/backup/config.rb"
-	    generate_from_template "backup/backup.yml.erb", "#{shared_path}/config/backup/backup.yml"
+
+	  	sftpbackup = Capistrano::CLI.ui.agree "Do you want backups via sftp ([yes]/no)?" do |q|
+	  		q.default = 'yes'
+	  	end
+
+	  	localbackup = Capistrano::CLI.ui.agree "Do you want local backups ([yes]/no)?" do |q|
+	  		q.default = 'yes'
+	  	end
+
+	  	set :sftpbackup, sftpbackup
+	  	set :localbackup, localbackup
+
+	  	if sftpbackup || localbackup then 
+
+	  		run "gem install backup"
+	  		run "gem install whenever"
+
+	  		if sftpbackup then
+	  			run "gem install net-ssh -v '~> 2.3.0'"
+	  		end
+
+      		run "rbenv rehash"
+
+			run "mkdir -p #{shared_path}/config/backup/models"	    	
+	    	generate_from_template "backup/daily_backup.rb.erb", "#{shared_path}/config/backup/models/daily_backup.rb"
+	    	generate_from_template "backup/config.rb.erb", "#{shared_path}/config/backup/config.rb"
+	    	generate_from_template "backup/backup.yml.erb", "#{shared_path}/config/backup/backup.yml"
 	    
-	    # setting up cronjob
-	    generate_from_template "backup/schedule.rb.erb", "#{shared_path}/config/backup/schedule.rb"
-	    run "whenever -f #{shared_path}/config/backup/schedule.rb --update-crontab"
+	    	# setting up cronjob
+	    	generate_from_template "backup/schedule.rb.erb", "#{shared_path}/config/backup/schedule.rb"
+	    	run "whenever -f #{shared_path}/config/backup/schedule.rb --update-crontab"
+	    end
 
 	  end
 	  after "deploy:install", "backup:install"

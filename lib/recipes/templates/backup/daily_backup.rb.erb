@@ -40,12 +40,20 @@ Backup::Model.new('<%= application %>_daily', 'daily starseeders backup for <%= 
     compression.level = 6
   end
 
+  <% if sftpbackup then %>
   store_with SFTP do |sftp|
     sftp.ip       = backup["host"]
     sftp.username = backup["user"]
     sftp.password = backup["pass"]
     sftp.port     = 22
-    sftp.keep     = 12
+    sftp.keep     = 7
   end
+  <% end %>
 
+  <% if localbackup then %>
+  store_with Local do |local|
+    local.path = '~/backups/'
+    local.keep = 7
+  end
+  <% end %>
 end
