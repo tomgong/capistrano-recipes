@@ -95,9 +95,14 @@ Capistrano::Configuration.instance(:must_exist).load do
       if filename.empty?
         logger.important "No backups found"
       else
+        override_production = true
         if stage == 'production' then
-          logger.important "local to production not allowed"
-        else
+          override_production = Capistrano::CLI.ui.agree "Do you really want to dump into production db (yes/[no])?" do |q|
+            q.default = 'yes'
+          end
+        end
+
+        if override_production then
           puts "copy pg backup file"
           upload("backups/#{filename}", "/tmp/#{filename}")
           puts "trying to restore backup #{filename} in env #{stage}"
