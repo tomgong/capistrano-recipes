@@ -14,7 +14,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           first_deployment = true
         end
         
-        if !first_deployment || capture("cd #{latest_release} && #{source.local.log(from)} #{asset_locations.join(" ")} #{additional_asset_locations.join(" ")} | wc -l").to_i > 0
+        if capture("cd #{latest_release} && #{source.local.log(from)} #{asset_locations.join(" ")} #{additional_asset_locations.join(" ")} | wc -l").to_i > 0
           run %Q{cd #{latest_release} && #{rake} RAILS_ENV=#{rails_env} #{asset_env} assets:precompile}
         else
           logger.info "Skipping asset pre-compilation because there were no asset changes or its the first deployment"
